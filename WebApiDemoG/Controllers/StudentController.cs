@@ -43,6 +43,14 @@ namespace WebApiDemoG.Controllers
         [Authorize(Roles ="Admin")]
         public List<StudentModel> Get()
         {
+            /*
+             * $.ajax({
+         url: "http://localhost:8080/Student",
+         type: 'GET',
+         // Fetch the stored token from localStorage and set in the header
+         headers: {"Authorization": "basic "+token}
+});
+             */
             var items = _studentService.GetAll().ToList();
             var dataToReturn = items.Select(a =>
             {
