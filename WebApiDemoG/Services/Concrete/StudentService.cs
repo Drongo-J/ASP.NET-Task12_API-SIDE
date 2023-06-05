@@ -26,6 +26,7 @@ namespace WebApiDemoG.Services.Concrete
 
         public Student Get(int id)
         {
+            
             return _studentRepository.Get(id);
         }
 
@@ -34,9 +35,15 @@ namespace WebApiDemoG.Services.Concrete
             return _studentRepository.GetAll();
         }
 
+        public bool StudentExists(string username, string password)
+        {
+            return GetAll().Any(s => s.Username == username && s.Password == password);
+        }
+
         public void Update(Student entity)
         {
             _studentRepository.Update(entity);
         }
+
     }
 }

@@ -17,9 +17,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options =>
 {
+    
     options.OutputFormatters.Add(new VCardOutputFormatter());
     options.OutputFormatters.Add(new TextCsvOutputFormatter());
     options.InputFormatters.Add(new TextCsvInputFormatter());
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
 });
 
 builder.Services.AddControllers();
@@ -27,13 +39,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-
 var connection = builder.Configuration.GetConnectionString("myconn");
 builder.Services.AddDbContext<StudentDBContext>(opt =>
 {
     opt.UseSqlServer(connection);
 });
+
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
@@ -52,9 +63,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
-
+app.UseMiddleware<AuthenticationMiddleware>();
+app.UseCors("AllowOrigin");
 app.UseAuthorization();
 
 app.MapControllers();

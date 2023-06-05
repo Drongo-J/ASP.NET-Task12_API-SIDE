@@ -1,12 +1,18 @@
-﻿using System.Buffers.Text;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+using System.Buffers.Text;
 using System.Security.Claims;
 using System.Text;
+using WebApiDemoG.Repositories.Abstract;
+using WebApiDemoG.Repositories.Concrete;
+using WebApiDemoG.Services.Abstract;
 
 namespace WebApiDemoG.MiddleWares
 {
     public class AuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly DbContext _dbContext;
 
         public AuthenticationMiddleware(RequestDelegate next)
         {
@@ -19,7 +25,7 @@ namespace WebApiDemoG.MiddleWares
             if (authHeader == null)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await _next(context); // may change
+                await _next(context);
                 return;
             }
 
@@ -39,7 +45,8 @@ namespace WebApiDemoG.MiddleWares
                 var username = credentials[0];
                 var password = credentials[1];
 
-                if (username == "elvin1999" && password == "12345") // For testing purposea
+                // Resolve the IStudentRepository from the IServiceProvider
+                if (username == "ayxan" && password == "12345") // for testing purposes
                 {
                     var claim = new[]
                     {
@@ -54,6 +61,7 @@ namespace WebApiDemoG.MiddleWares
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 }
+
                 await _next(context);
             }
         }

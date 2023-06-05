@@ -11,6 +11,7 @@ namespace WebApiDemoG.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class StudentController : ControllerBase
     {
         private readonly IStudentService _studentService;
@@ -20,14 +21,14 @@ namespace WebApiDemoG.Controllers
             _studentService = studentService;
         }
 
-        // GET: api/<StudentController>
         //[HttpGet]
-        //public IEnumerable<StudentDto> Get()
+        //public List<StudentModel> Get()
         //{
-        //    var items = _studentService.GetAll();
+           
+        //    var items = _studentService.GetAll().ToList();
         //    var dataToReturn = items.Select(a =>
         //    {
-        //        return new StudentDto
+        //        return new StudentModel
         //        {
         //            Id = a.Id,
         //            Age = a.Age,
@@ -35,37 +36,9 @@ namespace WebApiDemoG.Controllers
         //            Score = a.Score,
         //            SeriaNo = a.SeriaNo
         //        };
-        //    });
+        //    }).ToList();
         //    return dataToReturn;
         //}
-
-        [HttpGet]
-        [Authorize(Roles ="Admin")]
-        public List<StudentModel> Get()
-        {
-            /*
-             * $.ajax({
-         url: "http://localhost:8080/Student",
-         type: 'GET',
-         // Fetch the stored token from localStorage and set in the header
-         headers: {"Authorization": "basic "+token}
-});
-             */
-            var items = _studentService.GetAll().ToList();
-            var dataToReturn = items.Select(a =>
-            {
-                return new StudentModel
-                {
-                    Id = a.Id,
-                    Age = a.Age,
-                    Fullname = a.Fullname,
-                    Score = a.Score,
-                    SeriaNo = a.SeriaNo
-                };
-            }).ToList();
-            return dataToReturn;
-        }
-
 
         // GET: api/<StudentController>
         [HttpGet("Best")]
@@ -88,9 +61,13 @@ namespace WebApiDemoG.Controllers
 
         // GET api/<StudentController>/5
         [HttpGet("{id}")]
-        public StudentModel Get(int id)
+        public IActionResult Get(int id)
         {
             var item=_studentService.Get(id);
+            if (item == null)
+            {
+                return NotFound($"Student with id {id} not found!");
+            }
             var dataToReturn = new StudentModel
             {
                 Id = item.Id,
@@ -99,24 +76,17 @@ namespace WebApiDemoG.Controllers
                 Fullname = item.Fullname,
                 Score = item.Score
             };
-            return dataToReturn;
+            return Ok(dataToReturn);
         }
 
         // POST api/<StudentController>
         [HttpPost]
-        public IActionResult Post([FromBody] StudentModel value)
+        public IActionResult Post([FromBody] Student value)
         {
             try
             {
-                var obj = new Student
-                {
-                    Age = value.Age,
-                    Score = value.Score,
-                    Fullname = value.Fullname,
-                    SeriaNo = value.SeriaNo
-                };
-                _studentService.Add(obj);
-                return Ok(obj);
+                _studentService.Add(value);
+                return Ok(value);
             }
             catch (Exception ex)
             {
@@ -151,7 +121,7 @@ namespace WebApiDemoG.Controllers
             try
             {
                 _studentService.Delete(id);
-                return NoContent();
+                return Ok($"Deleted Successfully! Student with ID {id}");
             }
             catch (Exception ex)
             {

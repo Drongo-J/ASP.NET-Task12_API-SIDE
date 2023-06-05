@@ -5,5 +5,6 @@ namespace WebApiDemoG.Services.Abstract
 {
     public interface IStudentService:IService<Student>
     {
+         bool StudentExists(string username, string password);
     }
 }
